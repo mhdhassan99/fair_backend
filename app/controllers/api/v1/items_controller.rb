@@ -1,10 +1,14 @@
 class Api::V1::ItemsController < ApplicationController
     def index
         @items = Item.all
-        # @image_tray = @items.map { |item| item.image_tray.map{ |img| {itemId: img.record_id, imgUrl: url_for(img)}} }.flatten
-        # byebug
-        #  json: @items
-        render json: @items.to_json(methods: [:title])
+        @serializedItems = []
+        @items.each do |item|
+            @serializedItems.push({
+                product: item.as_json(only: [:id, :price, :title, :description, :category]),
+                productImages: item.image_tray.map{|img| url_for(img)}.flatten
+            })
+        end
+        render json: @serializedItems
     end
 
     def show
